@@ -1,0 +1,13 @@
+# Wails bin directory
+build/bin
+
+# IDEs
+.idea
+.vscode
+.DS_Store
+
+# fronted resources
+frontend/node_modules
+frontend/wailsjs
+frontend/dist
+frontend/package.json.md5
