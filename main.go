@@ -22,11 +22,12 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "Ding",
-		Width:             1024,
+		Width:             375,
 		Height:            768,
 		Fullscreen:        false,
 		StartHidden:       true,
 		HideWindowOnClose: false,
+		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
