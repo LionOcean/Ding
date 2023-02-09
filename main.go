@@ -27,7 +27,7 @@ func main() {
 		Fullscreen:        false,
 		StartHidden:       true,
 		HideWindowOnClose: false,
-		Frameless: true,
+		Frameless:         true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

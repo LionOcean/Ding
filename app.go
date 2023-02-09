@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"ding/transfer"
 	"os"
-	"path/filepath"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -48,9 +47,43 @@ func (a *App) shutdown(ctx context.Context) {
 
 // ---- app native go methods bindings to js ----
 
-// OpenFileDialog show a system dialog to choose files
-func (a *App) OpenFileDialog(dialogOptions runtime.OpenDialogOptions) (string, error) {
-	return runtime.OpenFileDialog(a.ctx, dialogOptions)
+// 作测试用，后续会删除，返回当前发送端已存的文件列表
+func (a *App) LogFiles() []transfer.TransferFile {
+	return transfer.LogTransferFile()
+}
+
+// StartP2PServer start a server for received perr
+func (a *App) StartP2PServer() (transfer.ServerIPInfo, error) {
+	return transfer.StartP2PServer()
+}
+
+// CloseP2PServer close the runing P2PServer
+func (a *App) CloseP2PServer() error {
+	return transfer.CloseP2PServer()
+}
+
+// UploadFiles show a system dialog to choose files and upload to server
+func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) error {
+	paths, err := runtime.OpenMultipleFilesDialog(a.ctx, dialogOptions)
+	if err != nil {
+		return err
+	}
+	for _, name := range paths {
+		file, err := os.Open(name)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		fileInfo, err := file.Stat()
+		if err != nil {
+			return err
+		}
+		transfer.AppendTransferFile(transfer.TransferFile{
+			Path: name,
+			Size: int(fileInfo.Size()),
+		})
+	}
+	return nil
 }
 
 // SaveFileDialog show a system dialog to choose a saving file path
@@ -58,28 +91,7 @@ func (a *App) SaveFileDialog(dialogOptions runtime.SaveDialogOptions) (string, e
 	return runtime.SaveFileDialog(a.ctx, dialogOptions)
 }
 
-// WriteFile write string data to path
-func (a *App) WriteFile(path string, data string) error {
-	// 创建文件
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	// 写入buf到文件
-	_, writeErr := file.Write([]byte(data))
-	if writeErr != nil {
-		return writeErr
-	}
-	return nil
-}
-
-// Extname return path ext name
-func (a *App) Extname(path string) string {
-	return filepath.Ext(path)
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+// DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.
+func (a *App) DownloadFile(remotePath, localPath string) error {
+	return transfer.DownloadFile(remotePath, localPath)
 }
