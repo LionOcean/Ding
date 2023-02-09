@@ -1,16 +1,25 @@
-import { HashRouter } from "react-router-dom";
+import { HashRouter } from 'react-router-dom';
+import Router from './routers';
 
-import CustomHead from "./header"
+import { Layout } from 'antd';
 
-import Router from "./routers";
+import Header from './components/Header';
+import Navigate from './components/Navigate';
 
-import "./App.css";
+import './App.less';
+
+const { Content, Footer } = Layout;
 
 function App() {
   return (
     <HashRouter>
-      <CustomHead />
-      <Router />
+      <Layout className='app__layout'>
+        <Header />
+        <Content>
+          <Router />
+        </Content>
+        <Navigate />
+      </Layout>
     </HashRouter>
   );
 }
