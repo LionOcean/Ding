@@ -1,17 +1,18 @@
-import { HashRouter } from "react-router-dom";
+import { HashRouter } from 'react-router-dom';
+import Router from './routers';
 
-import CustomHead from "./header"
+import Header from './components/Header';
 
-import Router from "./routers";
-
-import "./App.css";
+import './App.css';
 
 function App() {
   return (
-    <HashRouter>
-      <CustomHead />
-      <Router />
-    </HashRouter>
+    <>
+      <Header />
+      <HashRouter>
+        <Router />
+      </HashRouter>
+    </>
   );
 }
 

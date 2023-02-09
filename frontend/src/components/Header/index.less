@@ -1,0 +1,42 @@
+.btn {
+  cursor: pointer;
+}
+
+.header {
+  width: 100vw;
+  height: 50px;
+
+  position: relative;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-sizing: border-box;
+  padding: 0 15px;
+  cursor: grab;
+
+  &__backBtn {
+    .btn();
+  }
+
+  &__title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  &__operation {
+    display: flex;
+  }
+
+  &__minimizeBtn {
+    margin-right: 10px;
+  }
+
+  &__minimizeBtn,
+  &__closeBtn {
+    .btn();
+  }
+}
