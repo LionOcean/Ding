@@ -1,10 +1,10 @@
-import { createRoot } from "react-dom/client";
+import { createRoot } from 'react-dom/client';
 
-import App from "./App";
+import App from './App';
 
-import "./style.css";
+import './style.less';
 
-const container = document.getElementById("root");
+const container = document.getElementById('root');
 
 const root = createRoot(container!);
 

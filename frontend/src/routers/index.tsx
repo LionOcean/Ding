@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
-import { RouteObject, Navigate, useRoutes } from "react-router-dom";
+import { lazy, Suspense } from 'react';
+import { RouteObject, Navigate, useRoutes } from 'react-router-dom';
 
 const lazyLoad = (Children: React.LazyExoticComponent<any>) => {
   return (
@@ -11,24 +11,24 @@ const lazyLoad = (Children: React.LazyExoticComponent<any>) => {
 
 export const routesConfig: RouteObject[] = [
   {
-    path: "/",
-    element: <Navigate to="/home" />,
+    path: '/',
+    element: <Navigate to='/home' />,
   },
   {
-    path: "/home",
-    element: lazyLoad(lazy(() => import("../pages/Home"))),
+    path: '/home',
+    element: lazyLoad(lazy(() => import('../pages/Home'))),
   },
   {
-    path: "/download",
-    element: lazyLoad(lazy(() => import("../pages/Download"))),
+    path: '/download',
+    element: lazyLoad(lazy(() => import('../pages/Download'))),
   },
   {
-    path: "/upload",
-    element: lazyLoad(lazy(() => import("../pages/Upload"))),
+    path: '/upload',
+    element: lazyLoad(lazy(() => import('../pages/Upload'))),
   },
   {
-    path: "*",
-    element: <Navigate to="/home" />,
+    path: '*',
+    element: <Navigate to='/home' />,
   },
 ];
 
