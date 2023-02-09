@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "prettier --write --loglevel warn \"src/**/*.{js,ts,json,tsx,css,less,scss,html,md}\""
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.1",
@@ -20,6 +21,7 @@
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.1",
+    "prettier": "^2.8.4",
     "typescript": "^4.6.4",
     "vite": "^3.0.7"
   }
