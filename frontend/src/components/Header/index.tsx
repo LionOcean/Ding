@@ -1,7 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { WindowMinimise, Quit } from '../../../wailsjs/runtime';
 import './index.less';
+import { CloseCircleOutlined, HomeOutlined, MinusCircleOutlined } from '@ant-design/icons';
 
 export default function () {
+  const navigate = useNavigate();
+
   return (
     <div
       className='header'
@@ -9,17 +13,13 @@ export default function () {
         ['--wails-draggable' as string]: 'drag',
       }}
     >
-      <div className='header__backBtn' onClick={() => window.history.back()} role='button' tabIndex={-1}>
-        返回
+      <div className='header__backBtn' onClick={() => navigate('/home')} role='button' tabIndex={-1}>
+        <HomeOutlined style={{ fontSize: '20px' }} />
       </div>
-      <span className='header__title'>我是拖动头部</span>
+      <span className='header__title'>Ding</span>
       <div className='header__operation'>
-        <span className='header__minimizeBtn' onClick={() => WindowMinimise()} role='button' tabIndex={-1}>
-          最小化
-        </span>
-        <span className='header__closeBtn' onClick={() => Quit()} role='button' tabIndex={-1}>
-          退出
-        </span>
+        <MinusCircleOutlined style={{ fontSize: '18px', marginRight: '10px' }} onClick={() => WindowMinimise()} role='button' tabIndex={-1} />
+        <CloseCircleOutlined style={{ fontSize: '18px' }} onClick={() => Quit()} role='button' tabIndex={-1} />
       </div>
     </div>
   );
