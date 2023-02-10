@@ -47,13 +47,8 @@ func (a *App) shutdown(ctx context.Context) {
 
 // ---- app native go methods bindings to js ----
 
-// 作测试用，后续会删除，返回当前发送端已存的文件列表
-func (a *App) LogFiles() []transfer.TransferFile {
-	return transfer.LogTransferFile()
-}
-
 // StartP2PServer start a server for received perr
-func (a *App) StartP2PServer() (transfer.ServerIPInfo, error) {
+func (a *App) StartP2PServer() error {
 	return transfer.StartP2PServer()
 }
 
@@ -62,28 +57,40 @@ func (a *App) CloseP2PServer() error {
 	return transfer.CloseP2PServer()
 }
 
+// ServerIPAddr return send peer server ips and port
+func (a *App) ServerIPAddr() transfer.ServerIPInfo {
+	return transfer.ServerIPAddr()
+}
+
 // UploadFiles show a system dialog to choose files and upload to server
-func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) error {
+func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) ([]transfer.TransferFile, error) {
+	emptyfiles := make([]transfer.TransferFile, 0)
 	paths, err := runtime.OpenMultipleFilesDialog(a.ctx, dialogOptions)
 	if err != nil {
-		return err
+		return emptyfiles, err
 	}
-	for _, name := range paths {
-		file, err := os.Open(name)
+	for _, path := range paths {
+		file, err := os.Open(path)
 		if err != nil {
-			return err
+			return emptyfiles, err
 		}
 		defer file.Close()
 		fileInfo, err := file.Stat()
 		if err != nil {
-			return err
+			return emptyfiles, err
 		}
 		transfer.AppendTransferFile(transfer.TransferFile{
-			Path: name,
+			Path: path,
+			Name: fileInfo.Name(),
 			Size: int(fileInfo.Size()),
 		})
 	}
-	return nil
+	return transfer.LogTransferFiles(), nil
+}
+
+// RemoveTransferFiles remove files from files_list.
+func (a *App) RemoveFiles(files []transfer.TransferFile) {
+	transfer.RemoveTransferFiles(files...)
 }
 
 // SaveFileDialog show a system dialog to choose a saving file path

@@ -53,11 +53,14 @@
 # 使用upx压缩打包
 $ wails build --upx
 ```
-- target是mac平台
-    - 本机必须是mac系统，可以同时编译amd64、arm64架构
-- target是windows平台
-    - 只能编译windows，可以同时编译amd64、arm64架构
+虽然go支持交叉编译(任意本机系统架构都支持编译到其他系统架构)，但是由于wails使用了不同系统架构的webview程序绑定，所以wails目前只能跨平台运行，而不支持交叉编译
 
+- 本机是mac平台
+    - 可以编译darwin、windows和linux三个平台，对于arm64，必须芯片是arm64架构，可以统一编译amd64、arm64架构兼容的universal版本
+- 本机是windows平台
+    - 只能编译windows，可以单独编译amd64、arm64架构
+- 本机是linux平台
+    - 可以编译linux、windows和linux三个平台，对于arm64，必须芯片是arm64架构
 - 所有平台均可使用upx来压缩，压缩比例非常强
 - mac平台编译完的是app文件，windows默认编译完的是exe，所有平台均可使用nsis来打包exe
 - wails使用的方案是系统自带的webview，目前macos/linux主流版本均内置，windows平台使用的webview2只在部分win10和正式win11内置，所以当你的windwos系统中不存在webview2时，程序启动后会引导你安装，大概118M左右

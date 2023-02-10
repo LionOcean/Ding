@@ -13,6 +13,13 @@ var (
 	files_list []TransferFile // file list that would be received
 )
 
+// TransferFile is the file that send to received peer
+type TransferFile struct {
+	Path string `json:"path"` // file absolute path
+	Name string `json:"name"` // file base name with dot
+	Size int    `json:"size"` // file byte length
+}
+
 // ServerIPInfo contains current P2P server local ips/port
 type ServerIPInfo struct {
 	IPv4s []string // local ipv4 list
@@ -23,12 +30,12 @@ func init() {
 	ips, _ := localIPv4s()
 	servInfo.IPv4s = ips
 	servInfo.Port = os.Getpid()
-	serv.Addr = fmt.Sprintf("0.0.0.0:%v", servInfo.Port)
+	serv.Addr = fmt.Sprintf("0.0.0.0:%d", servInfo.Port)
 	files_list = make([]TransferFile, 0)
 }
 
-// 作测试用，后续会删除，返回当前发送端已存的文件列表
-func LogTransferFile() []TransferFile {
+// LogTransferFiles return current TransferFile list
+func LogTransferFiles() []TransferFile {
 	return files_list
 }
 
@@ -43,23 +50,39 @@ func AppendTransferFile(file TransferFile) {
 	}
 }
 
-// startP2PServer start a server to received peer.
+// RemoveTransferFiles remove files from files_list.
 //
-// Return send peer server ips and port
-func StartP2PServer() (ServerIPInfo, error) {
+// files could be multiple.
+func RemoveTransferFiles(files ...TransferFile) {
+	files_list = splice(files_list, func(v TransferFile, i int) bool {
+		return some(files, func(t TransferFile, all []TransferFile, j int) bool {
+			return strings.Compare(v.Path, t.Path) == 0
+		})
+	})
+}
+
+// startP2PServer start a server to received peer.
+func StartP2PServer() error {
+	// clear DefaultServeMux registration firstly
+	http.DefaultServeMux = new(http.ServeMux)
 	http.HandleFunc("/list", handleList)
 	http.HandleFunc("/download", handleDownload)
-	err := serv.ListenAndServe()
-	if err != nil {
-		return servInfo, err
+
+	if err := serv.ListenAndServe(); err != nil {
+		return err
 	}
-	return servInfo, nil
+	return nil
 }
 
 // closeP2PServer close the running P2PServer
 func CloseP2PServer() error {
 	err := serv.Close()
 	return err
+}
+
+// ServerIPAddr return send peer server ips and port
+func ServerIPAddr() ServerIPInfo {
+	return servInfo
 }
 
 // DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.

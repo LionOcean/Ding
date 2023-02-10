@@ -45,7 +45,7 @@ func main() {
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
 				Title:   "Ding",
-				Message: "© Alan Chen 2022 ",
+				Message: "© LionOcean 2023 ",
 				Icon:    icon,
 			},
 		},

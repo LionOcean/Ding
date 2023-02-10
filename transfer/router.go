@@ -9,21 +9,30 @@ import (
 )
 
 const (
-	responseCodeSuccess = iota + 200 // successful code
-	responseCodeFail                 // faliure code
+	respCodeSucces = iota + 200 // successful code
+	respCodeFail                // faliure code
 )
-
-// TransferFile is the file that send to received peer
-type TransferFile struct {
-	Path string `json:"path"` // file absolute path
-	Size int    `json:"size"` // file byte length
-}
 
 // server response JSON schema
 type responseJSON struct {
-	Code         int    `json:"code"`          // server action code
-	Data         any    `json:"data"`          // server returned data
-	ErrorMessage string `json:"error_message"` // server returned error when code is not responseCodeSuccess(200)
+	Code         int    `json:"code"`                    // server action code
+	Data         any    `json:"data,omitempty"`          // server returned data
+	ErrorMessage string `json:"error_message,omitempty"` // server returned error when code is not respCodeSucces(200)
+}
+
+// send JSON string error
+func sendError(errMsg string, errCode int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	resInfo := responseJSON{
+		errCode,
+		map[string]string{},
+		errMsg,
+	}
+	resJSON, err := json.Marshal(resInfo)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Write(resJSON)
 }
 
 // handleList handle /list route.
@@ -33,7 +42,7 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 	method := req.Method
 	switch method {
 	case http.MethodGet:
-		resInfo := responseJSON{responseCodeSuccess, files_list, ""}
+		resInfo := responseJSON{respCodeSucces, files_list, ""}
 		resJSON, err := json.Marshal(resInfo)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -54,6 +63,11 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 	switch method {
 	case http.MethodGet:
 		path, ok := req.URL.Query()["path"]
+		// path filed lose
+		if !ok || len(path) == 0 {
+			sendError("query path filed is necessary.", respCodeFail, w)
+			return
+		}
 		filePath := path[0]
 		hasPathExisted := some(files_list, func(v TransferFile, all []TransferFile, i int) bool {
 			return strings.Compare(v.Path, filePath) == 0
@@ -68,26 +82,9 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
-		} else {
-			w.Header().Add("Content-Type", "application/json")
-			resInfo := responseJSON{
-				responseCodeFail,
-				map[string]string{},
-				"",
-			}
-			// path filed lose
-			if !ok {
-				resInfo.ErrorMessage = "query path filed is necessary."
-			}
+		} else if !hasPathExisted {
 			// path not exist in file list
-			if !hasPathExisted {
-				resInfo.ErrorMessage = "query path has been deleted by send peer."
-			}
-			resJSON, err := json.Marshal(resInfo)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-			w.Write(resJSON)
+			sendError("query path has been deleted by send peer.", respCodeFail, w)
 		}
 
 	default:

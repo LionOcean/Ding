@@ -7,10 +7,10 @@ import (
 // some range slice s and judge whether filter could shot.
 //
 // s is any type(interface {}), filter func has three params and need one bool returned,
-// current is value of slice piece, all is s self, index is index number of slice piece.
+// current is value of slice piece, all is s itself, index is index number of slice piece.
 func some[T any](s []T, filter func(current T, all []T, index int) bool) bool {
 	for i, v := range s {
-		if filter(v, s, i) == true {
+		if filter(v, s, i) {
 			return true
 		}
 	}
@@ -24,6 +24,20 @@ func includes[T comparable](s []T, v T) bool {
 	return some(s, func(current T, all []T, index int) bool {
 		return current == v
 	})
+}
+
+// splice range slice s and remove item by filter func, it returns an new splice rather than effects s itself.
+//
+// s is any type(interface {}), filter func has two params and need one bool returned,
+// current is value of slice piece, index is index number of slice piece.
+func splice[T any](s []T, filter func(current T, index int) bool) []T {
+	newS := make([]T, 0)
+	for i, v := range s {
+		if !filter(v, i) {
+			newS = append(newS, v)
+		}
+	}
+	return newS
 }
 
 // localIPv4s return all non-loopback IPv4 addresses
