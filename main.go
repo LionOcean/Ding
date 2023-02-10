@@ -22,8 +22,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "Ding",
-		Width:             375,
-		Height:            768,
+		Width:             390,
+		Height:            844,
 		Fullscreen:        false,
 		StartHidden:       true,
 		HideWindowOnClose: false,
