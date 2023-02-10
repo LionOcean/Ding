@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
 var (
-	serv       http.Server // P2P server
-	servInfo   ServerIPInfo
+	serv       http.Server    // P2P server
+	servPort   string         // unique P2P server port, use process id
 	files_list []TransferFile // file list that would be received
 )
 
@@ -20,17 +21,9 @@ type TransferFile struct {
 	Size int    `json:"size"` // file byte length
 }
 
-// ServerIPInfo contains current P2P server local ips/port
-type ServerIPInfo struct {
-	IPv4s []string // local ipv4 list
-	Port  int      `json:"port"` // unique P2P server port, depends on process id
-}
-
 func init() {
-	ips, _ := localIPv4s()
-	servInfo.IPv4s = ips
-	servInfo.Port = os.Getpid()
-	serv.Addr = fmt.Sprintf("0.0.0.0:%d", servInfo.Port)
+	servPort = strconv.FormatInt(int64(os.Getpid()), 10)
+	serv.Addr = fmt.Sprintf("0.0.0.0:%v", servPort)
 	files_list = make([]TransferFile, 0)
 }
 
@@ -80,9 +73,14 @@ func CloseP2PServer() error {
 	return err
 }
 
-// ServerIPAddr return send peer server ips and port
-func ServerIPAddr() ServerIPInfo {
-	return servInfo
+// LocalIPAddr return current peer local ipv4 and port, if in received peer, you should omit port filed.
+func LocalIPAddr() ([]string, error) {
+	ip, port, err := localIPv4WithNetwork()
+	if err != nil {
+		return []string{}, err
+	}
+	port = servPort
+	return []string{ip, port}, nil
 }
 
 // DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.

@@ -57,9 +57,9 @@ func (a *App) CloseP2PServer() error {
 	return transfer.CloseP2PServer()
 }
 
-// ServerIPAddr return send peer server ips and port
-func (a *App) ServerIPAddr() transfer.ServerIPInfo {
-	return transfer.ServerIPAddr()
+// LocalIPAddr return current peer local ipv4 and port, if in received peer, you should omit port filed.
+func (a *App) LocalIPAddr() ([]string, error) {
+	return transfer.LocalIPAddr()
 }
 
 // UploadFiles show a system dialog to choose files and upload to server

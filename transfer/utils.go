@@ -57,10 +57,10 @@ func localIPv4s() ([]string, error) {
 	return ips, nil
 }
 
-// remoteIPv4 return public network IPv4 addresses.
+// localIPv4WithNetwork return only one local network IPv4 addresses by requesting remote network.
 //
 // ip, port, error
-func remoteIPv4() (string, string, error) {
+func localIPv4WithNetwork() (string, string, error) {
 	conn, err := net.Dial("udp", "google.com:80")
 	if err != nil {
 		return "", "", err

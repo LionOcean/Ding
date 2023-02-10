@@ -23,7 +23,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:             "Ding",
 		Width:             390,
-		Height:            844,
+		Height:            740,
 		Fullscreen:        false,
 		StartHidden:       true,
 		HideWindowOnClose: false,
