@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { WindowMinimise, Quit } from '../../../wailsjs/runtime';
-import './index.less';
 import { CloseCircleOutlined, HomeOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import './index.less';
 
 export default function () {
   const navigate = useNavigate();
