@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { UploadFiles } from '../../../wailsjs/go/main/App';
+import { UploadFiles, LocalIPAddr, StartP2PServer } from '../../../wailsjs/go/main/App';
 import { Button, Space, Table } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
