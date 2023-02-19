@@ -48,7 +48,6 @@ export default function Upload() {
         };
       });
       setFiles(target);
-      console.log('上传文件成功.', res);
     } catch (error) {}
     uploading.current = false;
   }, []);
