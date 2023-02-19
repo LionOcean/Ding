@@ -2,17 +2,17 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr, OpenDirDialog } from "../../../wailsjs/go/main/App";
-import { LogInfo } from '../../../wailsjs/runtime';
-import { isEqualLAN } from '../../utils';
-import { decrypt, encrypt } from '../../utils/crypto';
+import { DownloadFile, LocalIPAddr, OpenDirDialog } from '@wailsjs/go/main/App';
+import { LogInfo } from '@wailsjs/runtime';
+import { isEqualLAN } from '@utils/index';
+import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
 interface DataType {
   key: React.Key;
   file: string;
   path: string;
   size: number;
-  name: string
+  name: string;
 }
 
 const columns: ColumnsType<DataType> = [
@@ -42,23 +42,22 @@ export default function Download() {
   const onDownloadFiles = useCallback(async () => {
     try {
       let localUrl = await OpenDirDialog({
-        Title: "选择下载目录",
+        Title: '选择下载目录',
         ShowHiddenFiles: false,
         CanCreateDirectories: true,
-        TreatPackagesAsDirectories: true
-      })
-      console.log(localUrl)
-      if(!localUrl) {
-        return message.error("未选择要下载的目录")
+        TreatPackagesAsDirectories: true,
+      });
+      console.log(localUrl);
+      if (!localUrl) {
+        return message.error('未选择要下载的目录');
       }
       for (const file of selectedFiles) {
-        const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`
+        const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`;
         let res = await DownloadFile(remoteUrl, localUrl + '/' + file.name);
-        console.log(res)
+        console.log(res);
       }
-
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }, []);
   useEffect(() => {
@@ -82,11 +81,11 @@ export default function Download() {
     const requestUrl = `http://${remoteAddr.join(':')}/list`;
 
     fetch(requestUrl).then(async (res) => {
-      const result = await res.json()
-      if(result.code === 200) {
-        setFiles(result.data)
-      } else{
-        message.error(result.data)
+      const result = await res.json();
+      if (result.code === 200) {
+        setFiles(result.data);
+      } else {
+        message.error(result.data);
       }
     });
   };

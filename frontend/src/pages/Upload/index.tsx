@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UploadFiles, RemoveFiles, LocalIPAddr, StartP2PServer, CloseP2PServer } from "../../../wailsjs/go/main/App";
+import { UploadFiles, RemoveFiles, LocalIPAddr, StartP2PServer } from '@wailsjs/go/main/App';
 import { Button, Input, Modal, Space, Table, message } from 'antd';
 import { CloudUploadOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import ClipboardJS from 'clipboard';
-import { encrypt } from '../../utils/crypto';
+import { encrypt } from '@utils/crypto';
 import './index.less';
 
 interface DataType {
@@ -124,13 +124,17 @@ export default function Upload() {
         const addr = await LocalIPAddr();
         const targetAddr = encrypt(addr.join(','));
         setIpAddr(targetAddr);
-        try {
-          await StartP2PServer()
-        } catch (e) {
-          console.log(e)
-        }
       })();
-      return
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      (async () => {
+        await StartP2PServer();
+      })();
     } catch (error) {
       console.log(error);
     }
