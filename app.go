@@ -88,7 +88,7 @@ func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) ([]transfer.T
 	return transfer.LogTransferFiles(), nil
 }
 
-// RemoveTransferFiles remove files from files_list.
+// RemoveFiles RemoveTransferFiles remove files from files_list.
 func (a *App) RemoveFiles(files []transfer.TransferFile) {
 	transfer.RemoveTransferFiles(files...)
 }
@@ -96,6 +96,10 @@ func (a *App) RemoveFiles(files []transfer.TransferFile) {
 // SaveFileDialog show a system dialog to choose a saving file path
 func (a *App) SaveFileDialog(dialogOptions runtime.SaveDialogOptions) (string, error) {
 	return runtime.SaveFileDialog(a.ctx, dialogOptions)
+}
+
+func (a *App) OpenDirDialog(dialogOptions runtime.OpenDialogOptions) (string, error) {
+	return runtime.OpenDirectoryDialog(a.ctx, dialogOptions)
 }
 
 // DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.

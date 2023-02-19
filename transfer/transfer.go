@@ -62,6 +62,7 @@ func StartP2PServer() error {
 	http.HandleFunc("/download", handleDownload)
 
 	if err := serv.ListenAndServe(); err != nil {
+		err := fmt.Errorf((err.Error()))
 		return err
 	}
 	return nil
@@ -93,6 +94,7 @@ func DownloadFile(remotePath, localPath string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Printf("%v", resp.Body)
 	err_2 := writeFileByStep(localPath, resp.Body)
 	if err_2 != nil {
 		return err_2

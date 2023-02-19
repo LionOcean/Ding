@@ -2,7 +2,7 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr } from '../../../wailsjs/go/main/App';
+import { DownloadFile, LocalIPAddr, OpenDirDialog } from "../../../wailsjs/go/main/App";
 import { LogInfo } from '../../../wailsjs/runtime';
 import { isEqualLAN } from '../../utils';
 import { decrypt, encrypt } from '../../utils/crypto';
@@ -12,37 +12,60 @@ interface DataType {
   file: string;
   path: string;
   size: number;
+  name: string
 }
 
 const columns: ColumnsType<DataType> = [
   {
     title: '文件名',
-    dataIndex: 'file',
+    dataIndex: 'name',
+    key: 'name',
   },
   {
     title: '文件路径',
     dataIndex: 'path',
+    key: 'path',
   },
   {
     title: '大小/kb',
     dataIndex: 'size',
+    key: 'size',
   },
 ];
 
 export default function Download() {
   const [files, setFiles] = useState<Array<DataType>>([]);
   const [selectedFiles, setSelectedFiled] = useState<Array<DataType>>([]);
-  const [localIp, setLoaclIp] = useState<string[]>([]);
+  const [localIp, setLocalIp] = useState<string[]>([]);
+  const [remoteIp, setRemoteIp] = useState<string[]>([]);
+
   const onDownloadFiles = useCallback(async () => {
-    let [ip, port] = await LocalIPAddr();
-    // let res = await DownloadFile('/Users/chenlong/Documents/述职报告--陈龙.pages', "/Users/chenlong/Documents/述职报告--陈龙1.pages")
-    console.log(ip, port);
-    // console.log(res)
+    try {
+      let localUrl = await OpenDirDialog({
+        Title: "选择下载目录",
+        ShowHiddenFiles: false,
+        CanCreateDirectories: true,
+        TreatPackagesAsDirectories: true
+      })
+      console.log(localUrl)
+      if(!localUrl) {
+        return message.error("未选择要下载的目录")
+      }
+      for (const file of selectedFiles) {
+        const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`
+        let res = await DownloadFile(remoteUrl, localUrl + '/' + file.name);
+        console.log(res)
+      }
+
+    } catch (e) {
+      console.log(e)
+    }
   }, []);
   useEffect(() => {
-    LocalIPAddr().then(([ip, port]) => {
-      setLoaclIp([ip, port]);
-    });
+    (async () => {
+      let [ip, port] = await LocalIPAddr();
+      setLocalIp([ip, port]);
+    })();
     return;
   }, []);
   const onDeleteFiles = useCallback(() => {}, []);
@@ -50,13 +73,22 @@ export default function Download() {
     if (!value) {
       return message.error('请传入hash');
     }
-    console.log(encrypt(localIp.join(',')));
-    console.log(decrypt(encrypt(localIp.join(','))));
-    // const [ip, port] =
-    if (!isEqualLAN(localIp[0], '192.168.11.1')) {
+    const remoteAddr = decrypt(value).split(',');
+    setRemoteIp(remoteAddr);
+    console.log(remoteAddr, localIp, remoteIp);
+    if (!isEqualLAN(localIp[0], remoteAddr[0])) {
       return message.error('发送端IP与本机IP不属于同一局域网');
     }
-    console.log(localIp);
+    const requestUrl = `http://${remoteAddr.join(':')}/list`;
+
+    fetch(requestUrl).then(async (res) => {
+      const result = await res.json()
+      if(result.code === 200) {
+        setFiles(result.data)
+      } else{
+        message.error(result.data)
+      }
+    });
   };
   return (
     <div className='download'>
