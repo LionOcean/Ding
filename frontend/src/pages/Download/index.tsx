@@ -2,17 +2,16 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr, SaveFileDialog } from "../../../wailsjs/go/main/App";
-import { LogInfo } from '../../../wailsjs/runtime';
-import { isEqualLAN } from '../../utils';
-import { decrypt, encrypt } from '../../utils/crypto';
+import { DownloadFile, LocalIPAddr, SaveFileDialog } from '@wailsjs/go/main/App';
+import { isEqualLAN } from '@utils/index';
+import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
 interface DataType {
   key: React.Key;
   file: string;
   path: string;
   size: number;
-  name: string
+  name: string;
 }
 
 const columns: ColumnsType<DataType> = [
@@ -39,16 +38,12 @@ export default function Download() {
   const [localIp, setLocalIp] = useState<string[]>([]);
   const [remoteIp, setRemoteIp] = useState<string[]>([]);
   const downloadLoading = useRef(false)
-  console.log(downloadLoading)
   const onDownloadFiles = useCallback(async () => {
     try {
       if(downloadLoading.current) return
       downloadLoading.current = true
       let localUrl = await SaveFileDialog({
         Title: "选择下载目录",
-        ShowHiddenFiles: false,
-        CanCreateDirectories: true,
-        TreatPackagesAsDirectories: true
       })
       if(!localUrl) {
         downloadLoading.current = false
@@ -65,7 +60,6 @@ export default function Download() {
         }
         downloadLoading.current = false
       }
-
     } catch (e) {
       downloadLoading.current = false
       console.log(e)
@@ -92,11 +86,11 @@ export default function Download() {
     const requestUrl = `http://${remoteAddr.join(':')}/list`;
 
     fetch(requestUrl).then(async (res) => {
-      const result = await res.json()
-      if(result.code === 200) {
-        setFiles(result.data)
-      } else{
-        message.error(result.data)
+      const result = await res.json();
+      if (result.code === 200) {
+        setFiles(result.data);
+      } else {
+        message.error(result.data);
       }
     });
   };

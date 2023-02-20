@@ -14,7 +14,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "rootDir": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@utils/*": ["src/utils/*"],
+      "@utils": ["src/utils/*"],
+      "@wailsjs/*": ["wailsjs/*"]
+    }
   },
   "include": ["src"],
   "references": [
