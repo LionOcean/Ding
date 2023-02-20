@@ -23,7 +23,7 @@ type responseJSON struct {
 
 // send JSON string error
 func sendError(errMsg string, errCode int, w http.ResponseWriter) {
-	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	resInfo := responseJSON{
 		errCode,
 		nil,
@@ -48,8 +48,8 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		w.Header().Add("Content-Type", "application/json")
-		w.Header().Add("Content-Length", strconv.FormatInt(int64(len(resJSON)), 10))
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Length", strconv.FormatInt(int64(len(resJSON)), 10))
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(resJSON)
 	default:
@@ -79,7 +79,7 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 		if hasPathExisted {
 			err := readFileByStep(filePath, func(current byte, fileInfo os.FileInfo) {
 				size := fileInfo.Size()
-				w.Header().Add("Content-Length", strconv.FormatInt(size, 10))
+				w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 				w.Write([]byte{current})
 			})
 			if err != nil {

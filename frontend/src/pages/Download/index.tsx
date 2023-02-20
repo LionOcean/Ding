@@ -2,8 +2,7 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr, OpenDirDialog } from '@wailsjs/go/main/App';
-import { LogInfo } from '@wailsjs/runtime';
+import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
 import { isEqualLAN } from '@utils/index';
 import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
@@ -51,11 +50,12 @@ export default function Download() {
       if (!localUrl) {
         return message.error('未选择要下载的目录');
       }
+      const tasks = [];
       for (const file of selectedFiles) {
-        const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`;
-        let res = await DownloadFile(remoteUrl, localUrl + '/' + file.name);
-        console.log(res);
+        const remoteUrl = remoteIp.join(':');
+        tasks.push(DownloadFile(remoteUrl, file.name, localUrl + '/' + file.name));
       }
+      await Promise.all(tasks)
     } catch (e) {
       console.log(e);
     }
@@ -78,10 +78,10 @@ export default function Download() {
     if (!isEqualLAN(localIp[0], remoteAddr[0])) {
       return message.error('发送端IP与本机IP不属于同一局域网');
     }
-    const requestUrl = `http://${remoteAddr.join(':')}/list`;
 
-    fetch(requestUrl).then(async (res) => {
-      const result = await res.json();
+    ReceivingFiles(remoteAddr.join(':')).then(res => {
+      console.log(res);
+      const result = JSON.parse(res);
       if (result.code === 200) {
         setFiles(result.data);
       } else {
