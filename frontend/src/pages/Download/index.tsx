@@ -5,6 +5,7 @@ import { ColumnsType } from 'antd/es/table';
 import { DownloadFile, LocalIPAddr, SaveFileDialog } from '@wailsjs/go/main/App';
 import { isEqualLAN } from '@utils/index';
 import { decrypt, encrypt } from '@utils/crypto';
+import { OpenDirDialog } from "../../../wailsjs/go/main/App";
 const { Search } = Input;
 interface DataType {
   key: React.Key;
@@ -42,7 +43,7 @@ export default function Download() {
     try {
       if(downloadLoading.current) return
       downloadLoading.current = true
-      let localUrl = await SaveFileDialog({
+      let localUrl = await OpenDirDialog({
         Title: "选择下载目录",
       })
       if(!localUrl) {
@@ -52,7 +53,7 @@ export default function Download() {
       for (const file of selectedFiles) {
         const prefix = file.name.slice(file.name.lastIndexOf("."))
         const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`
-        let res = await DownloadFile(remoteUrl, localUrl + prefix);
+        let res = await DownloadFile(remoteUrl, localUrl + "/" + file.name);
         if(!res!) {
           message.success(`文件${file.name}下载成功`)
         } else {
