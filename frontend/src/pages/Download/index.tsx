@@ -2,8 +2,8 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog, SaveFileDialog } from '@wailsjs/go/main/App';
-import { isEqualLAN } from '@utils/index';
+import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
+import { isEqualLAN } from "@/utils";
 import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
 interface DataType {
@@ -18,17 +18,14 @@ const columns: ColumnsType<DataType> = [
   {
     title: '文件名',
     dataIndex: 'name',
-    key: 'name',
   },
   {
     title: '文件路径',
     dataIndex: 'path',
-    key: 'path',
   },
   {
     title: '大小/kb',
     dataIndex: 'size',
-    key: 'size',
   },
 ];
 
@@ -49,6 +46,7 @@ export default function Download() {
         downloadLoading.current = false
         return message.error("未选择要下载的目录")
       }
+      console.log(selectedFiles)
       for (const file of selectedFiles) {
         const remoteUrl = remoteIp.join(':');
         const prefix = file.name.slice(file.name.lastIndexOf("."))
@@ -58,13 +56,13 @@ export default function Download() {
         .catch(() => {
           message.error(`文件${file.name}下载失败`)
         });
-        downloadLoading.current = false
       }
+      downloadLoading.current = false
     } catch (e) {
       downloadLoading.current = false
       console.log(e)
     }
-  }, []);
+  }, [selectedFiles]);
   useEffect(() => {
     (async () => {
       let [ip, port] = await LocalIPAddr();
@@ -79,7 +77,6 @@ export default function Download() {
     }
     const remoteAddr = decrypt(value).split(',');
     setRemoteIp(remoteAddr);
-    console.log(remoteAddr, localIp, remoteIp);
     if (!isEqualLAN(localIp[0], remoteAddr[0])) {
       return message.error('发送端IP与本机IP不属于同一局域网');
     }
@@ -88,7 +85,14 @@ export default function Download() {
       console.log(res);
       const result = JSON.parse(res);
       if (result.code === 200) {
-        setFiles(result.data);
+
+        setFiles(result.data.map((ele:DataType) => {
+          return {
+            ...ele,
+            size: (ele.size / 1024).toFixed(2),
+            key: ele.name
+          }
+        }));
       } else {
         message.error(result.data);
       }
