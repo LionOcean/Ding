@@ -1,10 +1,15 @@
 import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
+<<<<<<< HEAD
 import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
+=======
+import { DownloadFile, LocalIPAddr, SaveFileDialog } from '@wailsjs/go/main/App';
+>>>>>>> 9b4f6cfa778746475872cc2e620772783965cdb4
 import { isEqualLAN } from '@utils/index';
 import { decrypt, encrypt } from '@utils/crypto';
+import { OpenDirDialog } from "../../../wailsjs/go/main/App";
 const { Search } = Input;
 interface DataType {
   key: React.Key;
@@ -37,27 +42,32 @@ export default function Download() {
   const [selectedFiles, setSelectedFiled] = useState<Array<DataType>>([]);
   const [localIp, setLocalIp] = useState<string[]>([]);
   const [remoteIp, setRemoteIp] = useState<string[]>([]);
-
+  const downloadLoading = useRef(false)
   const onDownloadFiles = useCallback(async () => {
     try {
+      if(downloadLoading.current) return
+      downloadLoading.current = true
       let localUrl = await OpenDirDialog({
-        Title: '选择下载目录',
-        ShowHiddenFiles: false,
-        CanCreateDirectories: true,
-        TreatPackagesAsDirectories: true,
-      });
-      console.log(localUrl);
-      if (!localUrl) {
-        return message.error('未选择要下载的目录');
+        Title: "选择下载目录",
+      })
+      if(!localUrl) {
+        downloadLoading.current = false
+        return message.error("未选择要下载的目录")
       }
-      const tasks = [];
       for (const file of selectedFiles) {
         const remoteUrl = remoteIp.join(':');
-        tasks.push(DownloadFile(remoteUrl, file.name, localUrl + '/' + file.name));
+        const prefix = file.name.slice(file.name.lastIndexOf("."))
+        DownloadFile(remoteUrl, file.path, localUrl + "/" + file.name).then(() => {
+          message.success(`文件${file.name}下载成功`)
+        })
+        .catch(() => {
+          message.error(`文件${file.name}下载失败`)
+        });
+        downloadLoading.current = false
       }
-      await Promise.all(tasks)
     } catch (e) {
-      console.log(e);
+      downloadLoading.current = false
+      console.log(e)
     }
   }, []);
   useEffect(() => {
