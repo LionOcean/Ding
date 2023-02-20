@@ -50,6 +50,7 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 		}
 		w.Header().Add("Content-Type", "application/json")
 		w.Header().Add("Content-Length", strconv.FormatInt(int64(len(resJSON)), 10))
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(resJSON)
 	default:
 		w.WriteHeader(http.StatusNotImplemented)
@@ -64,6 +65,7 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 	switch method {
 	case http.MethodGet:
 		path, ok := req.URL.Query()["path"]
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 		// path filed lose
 		if !ok || len(path) == 0 {
 			sendError("query path filed is necessary.", respCodePathMissing, w)
