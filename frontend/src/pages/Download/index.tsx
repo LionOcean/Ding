@@ -1,8 +1,8 @@
 import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
-import { DownloadFile, LocalIPAddr, OpenDirDialog } from "../../../wailsjs/go/main/App";
+import { DownloadFile, LocalIPAddr, SaveFileDialog } from "../../../wailsjs/go/main/App";
 import { LogInfo } from '../../../wailsjs/runtime';
 import { isEqualLAN } from '../../utils';
 import { decrypt, encrypt } from '../../utils/crypto';
@@ -38,26 +38,36 @@ export default function Download() {
   const [selectedFiles, setSelectedFiled] = useState<Array<DataType>>([]);
   const [localIp, setLocalIp] = useState<string[]>([]);
   const [remoteIp, setRemoteIp] = useState<string[]>([]);
-
+  const downloadLoading = useRef(false)
+  console.log(downloadLoading)
   const onDownloadFiles = useCallback(async () => {
     try {
-      let localUrl = await OpenDirDialog({
+      if(downloadLoading.current) return
+      downloadLoading.current = true
+      let localUrl = await SaveFileDialog({
         Title: "选择下载目录",
         ShowHiddenFiles: false,
         CanCreateDirectories: true,
         TreatPackagesAsDirectories: true
       })
-      console.log(localUrl)
       if(!localUrl) {
+        downloadLoading.current = false
         return message.error("未选择要下载的目录")
       }
       for (const file of selectedFiles) {
+        const prefix = file.name.slice(file.name.lastIndexOf("."))
         const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`
-        let res = await DownloadFile(remoteUrl, localUrl + '/' + file.name);
-        console.log(res)
+        let res = await DownloadFile(remoteUrl, localUrl + prefix);
+        if(!res!) {
+          message.success(`文件${file.name}下载成功`)
+        } else {
+          message.error(`文件${file.name}下载失败`)
+        }
+        downloadLoading.current = false
       }
 
     } catch (e) {
+      downloadLoading.current = false
       console.log(e)
     }
   }, []);
