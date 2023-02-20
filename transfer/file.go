@@ -6,7 +6,7 @@ import (
 )
 
 // use 50M temperary cache to store instead of bufio.NewReader, NewReader().Read could only read one byte every time, it's too slow although memory friendly.
-const MAX_BUFFER_BYTE = 1024 * 1024 * 50
+const MAX_BUFFER_BYTE = 1024 * 1024 * 100
 
 // readFileByStep read byte constantly from os.File created by given file path
 // if os.Open or ReadByte failed, return an no-nil error
@@ -47,7 +47,8 @@ func readFileByStep(path string, byteHandle func(currentBuf []byte, fileInfo os.
 // writeFileByStep write byte constantly from r to os.File created by given file path
 // if os.OpenFile failed, return an no-nil error
 func writeFileByStep(path string, r io.Reader) error {
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
