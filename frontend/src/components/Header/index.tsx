@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Popconfirm } from 'antd';
 import { WindowMinimise, Quit } from '../../../wailsjs/runtime';
 import { CloseCircleOutlined, HomeOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import './index.less';
@@ -21,7 +22,16 @@ export default function () {
       </span>
       <div className='header__operation'>
         <MinusCircleOutlined style={{ fontSize: '18px', marginRight: '10px' }} onClick={() => WindowMinimise()} role='button' tabIndex={-1} />
-        <CloseCircleOutlined style={{ fontSize: '18px' }} onClick={() => Quit()} role='button' tabIndex={-1} />
+        <Popconfirm
+          title='退出'
+          description='你确定要现在退出Ding嘛?'
+          placement='bottomRight'
+          okText='确定'
+          cancelText='不'
+          onConfirm={Quit}
+        >
+          <CloseCircleOutlined style={{ fontSize: '18px' }} role='button' tabIndex={-1} />
+        </Popconfirm>
       </div>
     </div>
   );

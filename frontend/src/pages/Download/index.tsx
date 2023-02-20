@@ -2,14 +2,9 @@ import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
-<<<<<<< HEAD
-import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
-=======
-import { DownloadFile, LocalIPAddr, SaveFileDialog } from '@wailsjs/go/main/App';
->>>>>>> 9b4f6cfa778746475872cc2e620772783965cdb4
+import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog, SaveFileDialog } from '@wailsjs/go/main/App';
 import { isEqualLAN } from '@utils/index';
 import { decrypt, encrypt } from '@utils/crypto';
-import { OpenDirDialog } from "../../../wailsjs/go/main/App";
 const { Search } = Input;
 interface DataType {
   key: React.Key;
