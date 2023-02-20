@@ -19,17 +19,14 @@ const columns: ColumnsType<DataType> = [
   {
     title: '文件名',
     dataIndex: 'name',
-    key: 'name',
   },
   {
     title: '文件路径',
     dataIndex: 'path',
-    key: 'path',
   },
   {
     title: '大小/kb',
     dataIndex: 'size',
-    key: 'size',
   },
 ];
 
@@ -53,14 +50,16 @@ export default function Download() {
       for (const file of selectedFiles) {
         const prefix = file.name.slice(file.name.lastIndexOf("."))
         const remoteUrl = `http://${remoteIp.join(':')}/download?path=${file.path}`
+        console.log(prefix)
         let res = await DownloadFile(remoteUrl, localUrl + "/" + file.name);
+        console.log('download result', res)
         if(!res!) {
           message.success(`文件${file.name}下载成功`)
         } else {
           message.error(`文件${file.name}下载失败`)
         }
-        downloadLoading.current = false
       }
+      downloadLoading.current = false
     } catch (e) {
       downloadLoading.current = false
       console.log(e)
@@ -72,7 +71,7 @@ export default function Download() {
       setLocalIp([ip, port]);
     })();
     return;
-  }, []);
+  }, [selectedFiles]);
   const onDeleteFiles = useCallback(() => {}, []);
   const onSearch = (value: string) => {
     if (!value) {
@@ -89,7 +88,13 @@ export default function Download() {
     fetch(requestUrl).then(async (res) => {
       const result = await res.json();
       if (result.code === 200) {
-        setFiles(result.data);
+
+        setFiles(result.data.map((ele:DataType) => {
+          return {
+            ...ele,
+            key: ele.name
+          }
+        }));
       } else {
         message.error(result.data);
       }
