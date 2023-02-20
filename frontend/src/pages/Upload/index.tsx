@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UploadFiles, RemoveFiles, LocalIPAddr, StartP2PServer } from '@wailsjs/go/main/App';
+import { UploadFiles, RemoveFiles, LogTransferFiles, LocalIPAddr, StartP2PServer } from '@wailsjs/go/main/App';
+import { transfer } from '@wailsjs/go/models';
 import { Button, Input, Modal, Space, Table, message } from 'antd';
 import { CloudUploadOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
@@ -44,6 +45,19 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
+// 包装files list数组
+function wrapFiles(raw: transfer.TransferFile[]): DataType[] {
+  const target: DataType[] = raw.map((item, index) => {
+    const { size } = item;
+    return {
+      key: index,
+      ...item,
+      size: Math.ceil(size / 1024),
+    };
+  });
+  return target;
+}
+
 export default function Upload() {
   const [files, setFiles] = useState<Array<DataType>>([]);
   const [selectedFiles, setSelectedFiled] = useState<Array<DataType>>([]);
@@ -64,20 +78,17 @@ export default function Upload() {
     return files.filter((file) => targetFiles.findIndex((item) => item.name === file.name) < 0);
   };
 
+  // 每次先加载列表
+  LogTransferFiles().then((res: transfer.TransferFile[]) => {
+    setFiles(wrapFiles(res));
+  })
+
   const onUploadFiles = useCallback(async () => {
     if (uploading.current) return;
     uploading.current = true;
     try {
       const res = await UploadFiles({});
-      const target: DataType[] = res.map((item, index) => {
-        const { size } = item;
-        return {
-          key: index,
-          ...item,
-          size: Math.ceil(size / 1024),
-        };
-      });
-      setFiles(target);
+      setFiles(wrapFiles(res));
     } catch (error) {}
     uploading.current = false;
   }, []);
@@ -92,15 +103,7 @@ export default function Upload() {
     }
     try {
       const res = await RemoveFiles(selectedFiles);
-      const target: DataType[] = res.map((item, index) => {
-        const { size } = item;
-        return {
-          key: index,
-          ...item,
-          size: Math.ceil(size / 1024),
-        };
-      });
-      !!res && setFiles(target);
+      !!res && setFiles(wrapFiles(res));
       setSelectedFiled([]);
     } catch (error) {
       console.error(error);

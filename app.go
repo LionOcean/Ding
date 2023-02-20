@@ -62,6 +62,11 @@ func (a *App) LocalIPAddr() ([]string, error) {
 	return transfer.LocalIPAddr()
 }
 
+// LogTransferFiles return current TransferFile list
+func (a *App) LogTransferFiles() []transfer.TransferFile {
+	return transfer.LogTransferFiles()
+}
+
 // UploadFiles show a system dialog to choose files and upload to server
 func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) ([]transfer.TransferFile, error) {
 	emptyfiles := make([]transfer.TransferFile, 0)

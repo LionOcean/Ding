@@ -77,10 +77,10 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 		})
 		// path filed exist and path exist in file list
 		if hasPathExisted {
-			err := readFileByStep(filePath, func(current byte, fileInfo os.FileInfo) {
+			err := readFileByStep(filePath, func(current []byte, fileInfo os.FileInfo) {
 				size := fileInfo.Size()
 				w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
-				w.Write([]byte{current})
+				w.Write(current)
 			})
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
