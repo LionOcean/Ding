@@ -2,6 +2,7 @@ package transfer
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -45,13 +46,14 @@ func AppendTransferFile(file TransferFile) {
 
 // RemoveTransferFiles remove files from files_list.
 //
-// files could be multiple.
-func RemoveTransferFiles(files ...TransferFile) {
+// files could be multiple. files_list will be returned.
+func RemoveTransferFiles(files ...TransferFile) []TransferFile {
 	files_list = splice(files_list, func(v TransferFile, i int) bool {
 		return some(files, func(t TransferFile, all []TransferFile, j int) bool {
 			return strings.Compare(v.Path, t.Path) == 0
 		})
 	})
+	return LogTransferFiles()
 }
 
 // startP2PServer start a server to received peer.
@@ -62,7 +64,6 @@ func StartP2PServer() error {
 	http.HandleFunc("/download", handleDownload)
 
 	if err := serv.ListenAndServe(); err != nil {
-		err := fmt.Errorf((err.Error()))
 		return err
 	}
 	return nil
@@ -84,20 +85,44 @@ func LocalIPAddr() ([]string, error) {
 	return []string{ip, port}, nil
 }
 
-// DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.
+// ReceivingFiles return send peer upaloded file list.
 //
-// remotePath must be a full http url path eg: http://192.168.0.0.1:8090/download?path=files://user/ding/app.go
+// remoteAddr must be a ip:port format eg: 192.168.0.0.1:8090.
+func ReceivingFiles(remoteAddr string) (string, error) {
+	remotePath := new(strings.Builder)
+	remotePath.WriteString("http://")
+	remotePath.WriteString(remoteAddr)
+	remotePath.WriteString("/list")
+	resp, err := http.Get(remotePath.String())
+	if err != nil {
+		return "", err
+	}
+	data, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// DownloadFile make a GET request to remoteAddr, next write response.body to local file with buffer pieces.
 //
-// localPath must be a absolute path eg: files://user/ding/new_app.go
-func DownloadFile(remotePath, localPath string) error {
-	resp, err := http.Get(remotePath)
+// remoteAddr must be a ip:port format eg: 192.168.0.0.1:8090.
+//
+// localPath must be a absolute path eg: files://user/ding/new_app.go.
+func DownloadFile(remoteAddr, remoteFile, localPath string) error {
+	remotePath := new(strings.Builder)
+	remotePath.WriteString("http://")
+	remotePath.WriteString(remoteAddr)
+	remotePath.WriteString("/download?path=")
+	remotePath.WriteString(remoteFile)
+	resp, err := http.Get(remotePath.String())
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%v", resp.Body)
-	err_2 := writeFileByStep(localPath, resp.Body)
-	if err_2 != nil {
-		return err_2
+	err = writeFileByStep(localPath, resp.Body)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 	return nil

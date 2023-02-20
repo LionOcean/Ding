@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	respCodeSucces = iota + 200 // successful code
-	respCodeFail                // faliure code
+	respCodeSucces      = iota + 200 // successful code
+	respCodePathMissing              // miss path
+	respCodeNotFound                 // path not found
 )
 
 // server response JSON schema
@@ -22,10 +23,10 @@ type responseJSON struct {
 
 // send JSON string error
 func sendError(errMsg string, errCode int, w http.ResponseWriter) {
-	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	resInfo := responseJSON{
 		errCode,
-		map[string]string{},
+		nil,
 		errMsg,
 	}
 	resJSON, err := json.Marshal(resInfo)
@@ -47,8 +48,8 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		w.Header().Add("Content-Type", "application/json")
-		w.Header().Add("Content-Length", strconv.FormatInt(int64(len(resJSON)), 10))
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Length", strconv.FormatInt(int64(len(resJSON)), 10))
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(resJSON)
 	default:
@@ -67,7 +68,7 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 		// path filed lose
 		if !ok || len(path) == 0 {
-			sendError("query path filed is necessary.", respCodeFail, w)
+			sendError("query path filed is necessary.", respCodePathMissing, w)
 			return
 		}
 		filePath := path[0]
@@ -75,18 +76,18 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 			return strings.Compare(v.Path, filePath) == 0
 		})
 		// path filed exist and path exist in file list
-		if ok && hasPathExisted {
+		if hasPathExisted {
 			err := readFileByStep(filePath, func(current byte, fileInfo os.FileInfo) {
 				size := fileInfo.Size()
-				w.Header().Add("Content-Length", strconv.FormatInt(size, 10))
+				w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 				w.Write([]byte{current})
 			})
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
-		} else if !hasPathExisted {
+		} else {
 			// path not exist in file list
-			sendError("query path has been deleted by send peer.", respCodeFail, w)
+			sendError("query path has been deleted by send peer.", respCodeNotFound, w)
 		}
 
 	default:

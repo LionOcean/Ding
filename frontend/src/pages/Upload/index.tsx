@@ -91,9 +91,16 @@ export default function Upload() {
       return;
     }
     try {
-      await RemoveFiles(selectedFiles);
-      const res = filterFiles(selectedFiles);
-      !!res && setFiles(res);
+      const res = await RemoveFiles(selectedFiles);
+      const target: DataType[] = res.map((item, index) => {
+        const { size } = item;
+        return {
+          key: index,
+          ...item,
+          size: Math.ceil(size / 1024),
+        };
+      });
+      !!res && setFiles(target);
       setSelectedFiled([]);
     } catch (error) {
       console.error(error);
@@ -132,9 +139,9 @@ export default function Upload() {
 
   useEffect(() => {
     try {
-      (async () => {
-        await StartP2PServer();
-      })();
+      StartP2PServer().catch(err => {
+        console.log(err);
+      });
     } catch (error) {
       console.log(error);
     }

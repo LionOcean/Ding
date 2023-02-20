@@ -89,8 +89,8 @@ func (a *App) UploadFiles(dialogOptions runtime.OpenDialogOptions) ([]transfer.T
 }
 
 // RemoveFiles RemoveTransferFiles remove files from files_list.
-func (a *App) RemoveFiles(files []transfer.TransferFile) {
-	transfer.RemoveTransferFiles(files...)
+func (a *App) RemoveFiles(files []transfer.TransferFile) []transfer.TransferFile {
+	return transfer.RemoveTransferFiles(files...)
 }
 
 // SaveFileDialog show a system dialog to choose a saving file path
@@ -98,11 +98,17 @@ func (a *App) SaveFileDialog(dialogOptions runtime.SaveDialogOptions) (string, e
 	return runtime.SaveFileDialog(a.ctx, dialogOptions)
 }
 
+// OpenDirDialog show a system dialog to choose a saving directory
 func (a *App) OpenDirDialog(dialogOptions runtime.OpenDialogOptions) (string, error) {
 	return runtime.OpenDirectoryDialog(a.ctx, dialogOptions)
 }
 
-// DownloadFile make a GET request to remotePath, next write response.body to local file with buffer pieces.
-func (a *App) DownloadFile(remotePath, localPath string) error {
-	return transfer.DownloadFile(remotePath, localPath)
+// ReceivingFiles return send peer upaloded file list.
+func (a *App) ReceivingFiles(remoteAddr string) (string, error) {
+	return transfer.ReceivingFiles(remoteAddr)
+}
+
+// DownloadFile make a GET request to remoteAddr download route, next write response.body to local file with buffer pieces.
+func (a *App) DownloadFile(remoteAddr, remoteFile, localPath string) error {
+	return transfer.DownloadFile(remoteAddr, remoteFile, localPath)
 }
