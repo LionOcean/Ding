@@ -1,10 +1,10 @@
 import { Button, Space, Table, Input, message } from 'antd';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
 import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
 import { EventsOn, EventsOff } from '@wailsjs/runtime/runtime';
-import { isEqualLAN } from "@/utils";
+import { isEqualLAN } from '@/utils';
 import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
 
@@ -33,42 +33,43 @@ const columns: ColumnsType<DataType> = [
 ];
 
 EventsOff('EVENT_DOWN_PROGRESS');
-EventsOn('EVENT_DOWN_PROGRESS', data => {
+EventsOn('EVENT_DOWN_PROGRESS', (data) => {
   console.log('文件下载进度: ', data);
-})
+});
 
 export default function Download() {
   const [files, setFiles] = useState<Array<DataType>>([]);
   const [selectedFiles, setSelectedFiled] = useState<Array<DataType>>([]);
   const [localIp, setLocalIp] = useState<string[]>([]);
   const [remoteIp, setRemoteIp] = useState<string[]>([]);
-  const downloadLoading = useRef(false)
+  const downloadLoading = useRef(false);
   const onDownloadFiles = useCallback(async () => {
     try {
-      if(downloadLoading.current) return
-      downloadLoading.current = true
+      if (downloadLoading.current) return;
+      downloadLoading.current = true;
       let localUrl = await OpenDirDialog({
-        Title: "选择下载目录",
-      })
-      if(!localUrl) {
-        downloadLoading.current = false
-        return message.error("未选择要下载的目录")
+        Title: '选择下载目录',
+      });
+      if (!localUrl) {
+        downloadLoading.current = false;
+        return message.error('未选择要下载的目录');
       }
-      console.log(selectedFiles)
+      console.log(selectedFiles);
       for (const file of selectedFiles) {
         const remoteUrl = remoteIp.join(':');
-        const prefix = file.name.slice(file.name.lastIndexOf("."))
-        DownloadFile(remoteUrl, file, localUrl + "/" + file.name).then(() => {
-          message.success(`文件${file.name}下载成功`)
-        })
-        .catch(() => {
-          message.error(`文件${file.name}下载失败`)
-        });
+        const prefix = file.name.slice(file.name.lastIndexOf('.'));
+        DownloadFile(remoteUrl, file, localUrl + '/' + file.name)
+          .then(() => {
+            message.success(`文件${file.name}下载成功`);
+          })
+          .catch(() => {
+            message.error(`文件${file.name}下载失败`);
+          });
       }
-      downloadLoading.current = false
+      downloadLoading.current = false;
     } catch (e) {
-      downloadLoading.current = false
-      console.log(e)
+      downloadLoading.current = false;
+      console.log(e);
     }
   }, [selectedFiles]);
   useEffect(() => {
@@ -89,17 +90,19 @@ export default function Download() {
       return message.error('发送端IP与本机IP不属于同一局域网');
     }
 
-    ReceivingFiles(remoteAddr.join(':')).then(res => {
+    ReceivingFiles(remoteAddr.join(':')).then((res) => {
       console.log(res);
       const result = JSON.parse(res);
       if (result.code === 200) {
-        setFiles(result.data.map((ele:DataType) => {
-          return {
-            ...ele,
-            fixed_size: (ele.size / 1024).toFixed(2),
-            key: ele.name
-          }
-        }));
+        setFiles(
+          result.data.map((ele: DataType) => {
+            return {
+              ...ele,
+              fixed_size: (ele.size / 1024).toFixed(2),
+              key: ele.name,
+            };
+          })
+        );
       } else {
         message.error(result.data);
       }

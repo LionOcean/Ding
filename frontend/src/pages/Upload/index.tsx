@@ -71,17 +71,10 @@ export default function Upload() {
     return selectedFiles.map((item) => item.key);
   }, [selectedFiles]);
 
-  const filterFiles = (targetFiles: DataType[]) => {
-    if (!targetFiles?.length) {
-      return null;
-    }
-    return files.filter((file) => targetFiles.findIndex((item) => item.name === file.name) < 0);
-  };
-
   // 每次先加载列表
   LogTransferFiles().then((res: transfer.TransferFile[]) => {
     setFiles(wrapFiles(res));
-  })
+  });
 
   const onUploadFiles = useCallback(async () => {
     if (uploading.current) return;
@@ -142,7 +135,7 @@ export default function Upload() {
 
   useEffect(() => {
     try {
-      StartP2PServer().catch(err => {
+      StartP2PServer().catch((err) => {
         console.log(err);
       });
     } catch (error) {
