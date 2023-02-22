@@ -62,6 +62,11 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 // it responses byte stream according to route query path filed.
 func handleDownload(w http.ResponseWriter, req *http.Request) {
 	method := req.Method
+	ranges, ok := req.Header["Range"]
+	rangeH := make([]int64, 2)
+	if ok {
+		rangeH, _ = parseRangeHeader(ranges[0])
+	}
 	switch method {
 	case http.MethodGet:
 		path, ok := req.URL.Query()["path"]
@@ -77,11 +82,20 @@ func handleDownload(w http.ResponseWriter, req *http.Request) {
 		})
 		// path filed exist and path exist in file list
 		if hasPathExisted {
-			err := readFileByStep(filePath, func(current []byte, fileInfo os.FileInfo) {
-				size := fileInfo.Size()
+			file, err := os.Open(filePath)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			defer file.Close()
+			fileInfo, _ := file.Stat()
+			data, isChunked, err := readByte(file, rangeH[0])
+			size := fileInfo.Size()
+			if isChunked {
+				w.Header().Set("Content-Range", formatRangeHeader(rangeH[1], rangeH[1]+MAX_BUFFER_BYTE, size))
+			} else {
 				w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
-				w.Write(current)
-			})
+			}
+			w.Write(data)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}

@@ -1,7 +1,11 @@
 package transfer
 
 import (
+	"errors"
+	"fmt"
 	"net"
+	"strconv"
+	"strings"
 )
 
 // some range slice s and judge whether filter could shot.
@@ -71,4 +75,30 @@ func localIPv4WithNetwork() (string, string, error) {
 		return "", "", err
 	}
 	return ip, port, nil
+}
+
+// parseRangeHeader parse incoming client Range header, return start range and end rage
+func parseRangeHeader(h string) ([]int64, error) {
+	if strings.Compare(h, "") == 0 {
+		return []int64{}, errors.New("range header could not be empty")
+	}
+	h = strings.TrimPrefix(h, "bytes=")
+	s := strings.Split(h, "-")
+	start, err := strconv.ParseInt(s[0], 10, 0)
+	if err != nil {
+		return []int64{}, err
+	}
+	end, err1 := strconv.ParseInt(s[1], 10, 0)
+	if err1 != nil {
+		return []int64{}, err1
+	}
+	return []int64{
+		start,
+		end,
+	}, nil
+}
+
+// formatRangeHeader format server Content-Range header
+func formatRangeHeader(start, end, total int64) string {
+	return fmt.Sprintf("bytes %d-%d/%d", start, end, total)
 }

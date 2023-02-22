@@ -3,15 +3,18 @@ import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnsType } from 'antd/es/table';
 import { DownloadFile, LocalIPAddr, ReceivingFiles, OpenDirDialog } from '@wailsjs/go/main/App';
+import { EventsOn, EventsOff } from '@wailsjs/runtime/runtime';
 import { isEqualLAN } from "@/utils";
 import { decrypt, encrypt } from '@utils/crypto';
 const { Search } = Input;
+
 interface DataType {
   key: React.Key;
   file: string;
   path: string;
   size: number;
   name: string;
+  fixed_size: number;
 }
 
 const columns: ColumnsType<DataType> = [
@@ -25,9 +28,14 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: '大小/kb',
-    dataIndex: 'size',
+    dataIndex: 'fixed_size',
   },
 ];
+
+EventsOff('EVENT_DOWN_PROGRESS');
+EventsOn('EVENT_DOWN_PROGRESS', data => {
+  console.log('文件下载进度: ', data);
+})
 
 export default function Download() {
   const [files, setFiles] = useState<Array<DataType>>([]);
@@ -50,7 +58,7 @@ export default function Download() {
       for (const file of selectedFiles) {
         const remoteUrl = remoteIp.join(':');
         const prefix = file.name.slice(file.name.lastIndexOf("."))
-        DownloadFile(remoteUrl, file.path, localUrl + "/" + file.name).then(() => {
+        DownloadFile(remoteUrl, file, localUrl + "/" + file.name).then(() => {
           message.success(`文件${file.name}下载成功`)
         })
         .catch(() => {
@@ -85,11 +93,10 @@ export default function Download() {
       console.log(res);
       const result = JSON.parse(res);
       if (result.code === 200) {
-
         setFiles(result.data.map((ele:DataType) => {
           return {
             ...ele,
-            size: (ele.size / 1024).toFixed(2),
+            fixed_size: (ele.size / 1024).toFixed(2),
             key: ele.name
           }
         }));

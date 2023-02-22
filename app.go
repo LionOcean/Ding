@@ -114,6 +114,6 @@ func (a *App) ReceivingFiles(remoteAddr string) (string, error) {
 }
 
 // DownloadFile make a GET request to remoteAddr download route, next write response.body to local file with buffer pieces.
-func (a *App) DownloadFile(remoteAddr, remoteFile, localPath string) error {
-	return transfer.DownloadFile(remoteAddr, remoteFile, localPath)
+func (a *App) DownloadFile(remoteAddr string, remoteFile transfer.TransferFile, localPath string) error {
+	return transfer.DownloadFile(a.ctx, remoteAddr, remoteFile, localPath)
 }
