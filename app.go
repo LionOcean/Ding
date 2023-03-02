@@ -28,8 +28,8 @@ func (a *App) startup(ctx context.Context) {
 
 // domReady is called after the front-end dom has been loaded
 func (a *App) domReady(ctx context.Context) {
-	// Add your action here
-	runtime.WindowShow(a.ctx)
+	// need wait for SPA web javascript rendering
+	// runtime.WindowShow(a.ctx)
 }
 
 // beforeClose is called when the application is about to quit,

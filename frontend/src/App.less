@@ -3,5 +3,10 @@
     width: 100vw;
     height: 100vh;
     background-color: transparent;
+    // 固定表格高度，避免多重滚动条
+    .ant-table-body {
+      max-height: 460px !important;
+      overflow-y: auto !important;
+    }
   }
 }
