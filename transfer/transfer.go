@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 
@@ -15,13 +15,12 @@ import (
 )
 
 const (
-	// wails emitting events by go bingdings
-	EVENT_DOWN_PROGRESS = "EVENT_DOWN_PROGRESS"
+	EVENT_DOWN_PROGRESS = "EVENT_DOWN_PROGRESS" // wails emitting events by go bingdings
+	servPort            = "65535"               // unique P2P server port, use tcp maximum prot number
 )
 
 var (
 	serv       http.Server    // P2P server
-	servPort   string         // unique P2P server port, use process id
 	files_list []TransferFile // file list that would be received
 )
 
@@ -33,8 +32,7 @@ type TransferFile struct {
 }
 
 func init() {
-	servPort = strconv.FormatInt(int64(os.Getpid()), 10)
-	serv.Addr = fmt.Sprintf("0.0.0.0:%v", servPort)
+	serv.Addr = net.JoinHostPort(net.IPv4zero.String(), servPort)
 	files_list = make([]TransferFile, 0)
 }
 
@@ -87,11 +85,11 @@ func CloseP2PServer() error {
 
 // LocalIPAddr return current peer local ipv4 and port, if in received peer, you should omit port filed.
 func LocalIPAddr() ([]string, error) {
-	ip, port, err := localIPv4WithNetwork()
+	ip, _, err := localIPv4WithNetwork()
 	if err != nil {
 		return []string{}, err
 	}
-	port = servPort
+	port := servPort
 	return []string{ip, port}, nil
 }
 

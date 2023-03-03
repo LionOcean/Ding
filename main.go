@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"runtime/debug"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -16,6 +17,9 @@ var assets embed.FS
 var icon []byte
 
 func main() {
+	// 设置GC限制为300M，触发到阈值后开始一轮GC
+	// 因为文件传输经常会遇到大文件内存占用，而长时间不触发GC，可能会让机器内存榨干
+	debug.SetMemoryLimit(1024 * 1024 * 300)
 	// Create an instance of the app structure
 	app := NewApp()
 
