@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UploadFiles, RemoveFiles, LogTransferFiles, LocalIPAddr, StartP2PServer } from '@wailsjs/go/main/App';
+import { UploadFiles, Remove, List, StartServer } from '@wailsjs/go/transfer/SendPeer';
+import { LocalIPAddr } from '@wailsjs/go/transfer/Peer';
 import { transfer } from '@wailsjs/go/models';
 import { Button, Input, Space, Table, message, Tooltip } from 'antd';
 import { FolderOpenOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -73,7 +74,7 @@ export default function Upload() {
   }, [selectedFiles]);
 
   // 每次先加载列表
-  LogTransferFiles().then((res: transfer.TransferFile[]) => {
+  List().then((res: transfer.TransferFile[]) => {
     setFiles(wrapFiles(res));
   });
 
@@ -96,7 +97,7 @@ export default function Upload() {
       return;
     }
     try {
-      const res = await RemoveFiles(selectedFiles);
+      const res = await Remove(selectedFiles);
       !!res && setFiles(wrapFiles(res));
       setSelectedFiled([]);
     } catch (error) {
@@ -136,7 +137,7 @@ export default function Upload() {
 
   useEffect(() => {
     try {
-      StartP2PServer().catch((err) => {
+      StartServer().catch((err) => {
         console.log(err);
       });
     } catch (error) {

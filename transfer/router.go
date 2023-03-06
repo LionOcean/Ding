@@ -39,7 +39,7 @@ func sendError(errMsg string, errCode int, w http.ResponseWriter) {
 // handleList handle /list route.
 //
 // it responses send file list JSON.
-func handleList(w http.ResponseWriter, req *http.Request) {
+func handleList(w http.ResponseWriter, req *http.Request, files_list []TransferFile) {
 	method := req.Method
 	switch method {
 	case http.MethodGet:
@@ -60,7 +60,7 @@ func handleList(w http.ResponseWriter, req *http.Request) {
 // handleDownload handle /download route.
 //
 // it responses byte stream according to route query path filed.
-func handleDownload(w http.ResponseWriter, req *http.Request) {
+func handleDownload(w http.ResponseWriter, req *http.Request, files_list []TransferFile) {
 	method := req.Method
 	ranges, ok := req.Header["Range"]
 	rangeH := make([]int64, 2)
