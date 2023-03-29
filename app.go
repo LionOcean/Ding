@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"ding/transfer"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -28,6 +29,9 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) domReady(ctx context.Context) {
 	// need wait for SPA web javascript rendering
 	// runtime.WindowShow(a.ctx)
+}
+func (a *App) LocalIPv4s() ([]string, error) {
+	return transfer.LocalIPv4s()
 }
 
 // beforeClose is called when the application is about to quit,

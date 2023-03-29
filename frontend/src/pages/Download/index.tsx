@@ -2,7 +2,7 @@ import { Button, Space, Table, Input, message, Progress } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { OpenDirDialog } from '@wailsjs/go/main/App';
+import { LocalIPv4s, OpenDirDialog } from '@wailsjs/go/main/App';
 import { DownloadFile, ReceivingFiles } from '@wailsjs/go/transfer/ReceivePeer';
 import { LocalIPAddr } from '@wailsjs/go/transfer/Peer';
 import { EventsOn, EventsOff } from '@wailsjs/runtime/runtime';
@@ -131,31 +131,35 @@ export default function Download() {
     }
     const remoteAddr = decrypt(value).split(',');
     setRemoteIp(remoteAddr);
-    if (!isEqualLAN(localIp[0], remoteAddr[0])) {
-      return message.error('发送端IP与本机IP不属于同一局域网');
-    }
-
-    ReceivingFiles(remoteAddr.join(':')).then((res) => {
-      const result = JSON.parse(res);
-      if (result.code === 200) {
-        setFiles(
-          result.data.map((ele: DataType) => {
-            const r = calcByteUnit(ele.size);
-            return {
-              ...ele,
-              sizeUnit: r.join(''),
-              key: ele.name,
-              download: {
-                progress: 0,
-                status: 'normal',
-              },
-            };
-          })
-        );
-      } else {
-        message.error(result.data);
-      }
-    });
+    // if (!isEqualLAN(localIp[0], remoteAddr[0])) {
+    //   return message.error('发送端IP与本机IP不属于同一局域网');
+    // }
+    ReceivingFiles(remoteAddr.join(':'))
+      .then((res) => {
+        const result = JSON.parse(res);
+        if (result.code === 200) {
+          setFiles(
+            result.data.map((ele: DataType) => {
+              const r = calcByteUnit(ele.size);
+              return {
+                ...ele,
+                sizeUnit: r.join(''),
+                key: ele.name,
+                download: {
+                  progress: 0,
+                  status: 'normal',
+                },
+              };
+            })
+          );
+        } else {
+          message.error(result.data);
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        message.error('连接超时, 请重试');
+      });
   };
   return (
     <div className='download'>

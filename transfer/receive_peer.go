@@ -83,7 +83,6 @@ func (rp *ReceivePeer) DownloadFile(remoteAddr string, remoteFile TransferFile, 
 		return err
 	}
 	defer file.Close()
-
 	writeBuf := make(chan int) // store buf data length in every request go routine
 	finishChunk := 0
 	wg := new(sync.WaitGroup)

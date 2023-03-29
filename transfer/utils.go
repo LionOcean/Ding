@@ -44,8 +44,8 @@ func splice[T any](s []T, filter func(current T, index int) bool) []T {
 	return newS
 }
 
-// localIPv4s return all non-loopback IPv4 addresses
-func localIPv4s() ([]string, error) {
+// LocalIPv4s return all non-loopback IPv4 addresses
+func LocalIPv4s() ([]string, error) {
 	var ips []string
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
