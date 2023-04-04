@@ -25,7 +25,7 @@ func NewReceivePeer() *ReceivePeer {
 	return new(ReceivePeer)
 }
 
-// ReceivingFiles return send peer upaloded file list.
+// ReceivingFiles return send peer uploaded files list.
 //
 // remoteAddr must be a ip:port format eg: 192.168.0.0.1:8090.
 func (rp *ReceivePeer) ReceivingFiles(remoteAddr string) (string, error) {
