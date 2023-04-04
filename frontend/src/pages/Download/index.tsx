@@ -2,7 +2,7 @@ import { Button, Space, Table, Input, message, Progress } from 'antd';
 import { FileAddOutlined } from '@ant-design/icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ColumnsType } from 'antd/es/table';
-import { LocalIPv4s, OpenDirDialog } from '@wailsjs/go/main/App';
+import { OpenDirDialog } from '@wailsjs/go/main/App';
 import { DownloadFile, ReceivingFiles } from '@wailsjs/go/transfer/ReceivePeer';
 import { LocalIPAddr } from '@wailsjs/go/transfer/Peer';
 import { EventsOn, EventsOff } from '@wailsjs/runtime/runtime';
