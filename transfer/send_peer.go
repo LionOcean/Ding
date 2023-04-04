@@ -57,8 +57,8 @@ func (fl *FileFlow) Append(file TransferFile) {
 
 // Remove delete files from files_list.
 //
-// files could be multiple. files_list will be returned.
-func (fl *FileFlow) Remove(files ...TransferFile) []TransferFile {
+// files_list will be returned.
+func (fl *FileFlow) Remove(files []TransferFile) []TransferFile {
 	fl.files = splice(fl.files, func(v TransferFile, i int) bool {
 		return some(files, func(t TransferFile, all []TransferFile, j int) bool {
 			return strings.Compare(v.Path, t.Path) == 0
