@@ -1,28 +1,35 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
-import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import { useEffect } from "react";
+import { HashRouter } from 'react-router-dom';
+import { WindowShow } from '../wailsjs/runtime'
+import Router from './routers';
+
+import { Layout } from 'antd';
+
+import Header from './components/Header';
+import Navigate from './components/Navigate';
+
+import './App.less';
+
+const { Content, Footer } = Layout;
 
 function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
-
-    function greet() {
-        Greet(name).then(updateResultText);
-    }
-
-    return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
-        </div>
-    )
+  useEffect(() => {
+    // 等待js渲染完再加载软件窗口，有效避免启动白屏
+    WindowShow()
+  }, [])
+  return (
+    <HashRouter>
+      <Layout className='app__layout'>
+        <Header />
+        <Content>
+          <Router />
+        </Content>
+        <Navigate />
+      </Layout>
+    </HashRouter>
+  );
 }
 
-export default App
+// console.log('__APP_VERSION__: ', __APP_VERSION__)
+
+export default App;

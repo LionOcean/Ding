@@ -6,16 +6,29 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "prettier --write --loglevel warn \"src/**/*.{js,ts,json,tsx,css,less,scss,html,md}\""
   },
   "dependencies": {
+    "@ant-design/icons": "^5.0.1",
+    "antd": "^5.2.0",
+    "clipboard": "^2.0.11",
+    "less": "^4.1.3",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.1",
+    "scheduler": "^0.23.0"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/node": "^18.14.0",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.1",
+    "crypto-js": "^4.1.1",
+    "path": "^0.12.7",
+    "prettier": "^2.8.4",
     "typescript": "^4.6.4",
     "vite": "^3.0.7"
   }
