@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UploadFiles, Remove, List, StartServer } from '@wailsjs/go/transfer/SendPeer';
+import { List, Remove, StartServer, UploadFiles } from '@wailsjs/go/transfer/SendPeer';
 import { LocalIPAddr } from '@wailsjs/go/transfer/Peer';
 import { transfer } from '@wailsjs/go/models';
-import { Button, Input, Space, Table, message, Tooltip } from 'antd';
-import { FolderOpenOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Button, Input, message, Space, Table, Tooltip } from 'antd';
+import { CopyOutlined, DeleteOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import ClipboardJS from 'clipboard';
+
 import { encrypt } from '@utils/crypto';
-import { calcByteUnit } from '@utils/index';
+import { calcByteUnit } from '@/utils';
+import { ClipboardSetText } from '@wailsjs/runtime';
 
 import './index.less';
 
@@ -48,7 +49,7 @@ const columns: ColumnsType<DataType> = [
 
 // 包装files list数组
 function wrapFiles(raw: transfer.TransferFile[]): DataType[] {
-  const target: DataType[] = raw.map((item, index) => {
+  return raw.map((item, index) => {
     const { size } = item;
     const r = calcByteUnit(size);
     return {
@@ -57,7 +58,6 @@ function wrapFiles(raw: transfer.TransferFile[]): DataType[] {
       sizeUnit: r.join(''),
     };
   });
-  return target;
 }
 
 export default function Upload() {
@@ -74,9 +74,11 @@ export default function Upload() {
   }, [selectedFiles]);
 
   // 每次先加载列表
-  List().then((res: transfer.TransferFile[]) => {
-    setFiles(wrapFiles(res));
-  });
+  useEffect(() => {
+    List().then((res: transfer.TransferFile[]) => {
+      setFiles(wrapFiles(res));
+    });
+  }, []);
 
   const onUploadFiles = useCallback(async () => {
     if (uploading.current) return;
@@ -110,18 +112,17 @@ export default function Upload() {
   }, [selectedFiles]);
 
   // 初始化 clipboard
-  useEffect(() => {
-    const clipboard = new ClipboardJS('.clipboardBtn');
-
-    clipboard.on('success', (e) => {
-      messageApi.open({
-        type: 'success',
-        content: '复制成功',
-      });
-    });
-
-    clipboard.on('error', (e) => {});
-  }, []);
+  // useEffect(() => {
+  //   const clipboard = new ClipboardJS('.clipboardBtn');
+  //   clipboard.on('success', (e) => {
+  //     messageApi.open({
+  //       type: 'success',
+  //       content: '复制成功',
+  //     });
+  //   });
+  //
+  //   clipboard.on('error', (e) => {});
+  // }, []);
 
   useEffect(() => {
     try {
@@ -144,14 +145,25 @@ export default function Upload() {
       console.log(error);
     }
   }, []);
+  const copyTextFunc = useCallback(() => {
+    ClipboardSetText(ipAddr).then((res: boolean) => {
+      console.log(res);
 
+      if (res) {
+        messageApi.open({
+          type: 'success',
+          content: '复制成功',
+        });
+      }
+    });
+  }, [ipAddr]);
   return (
     <>
       {contextHolder}
       <div className='upload'>
         <Space style={{ width: '100%', paddingLeft: '8px', justifyContent: 'center' }}>
           <Input value={ipAddr} style={{ width: '250px', backgroundColor: '#fff', color: '#666' }} readOnly />
-          <Button className='clipboardBtn' data-clipboard-text={ipAddr}>
+          <Button className='clipboardBtn' onClick={copyTextFunc}>
             <CopyOutlined style={{ fontSize: '18px' }} />
           </Button>
         </Space>
