@@ -15,3 +15,8 @@ func (p *Peer) LocalIPAddr() ([]string, error) {
 	port := servPort
 	return []string{ip, port}, nil
 }
+
+// LocalIPv4s return all non-loopback IPv4 addresses with mask
+func (p *Peer) LocalIPv4s() ([]string, error) {
+	return localIPv4s()
+}

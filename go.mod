@@ -31,4 +31,4 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 )
 
-// replace github.com/wailsapp/wails/v2 v2.3.1 => C:\Users\lenovo\go\pkg\mod
+// replace github.com/wailsapp/wails/v2 v2.4.1 => C:\Users\lenovo\go\pkg\mod

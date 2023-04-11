@@ -28,10 +28,6 @@ func (a *App) domReady(ctx context.Context) {
 	// runtime.WindowShow(a.ctx)
 }
 
-// func (a *App) LocalIPv4s() ([]string, error) {
-// 	return transfer.LocalIPv4s()
-// }
-
 // beforeClose is called when the application is about to quit,
 // either by clicking the window close button or calling runtime.Quit.
 // Returning true will cause the application to continue,
